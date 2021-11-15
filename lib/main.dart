@@ -1,115 +1,167 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+void main() => runApp(MaterialApp(
+    debugShowCheckedModeBanner: false,
+    theme: ThemeData(fontFamily: 'Inter'),
+    home: MyApp()));
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
+  _MyAppState createState() => _MyAppState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
+class _MyAppState extends State<MyApp> {
+  int index = 0;
+  PageController _controller = PageController(initialPage: 0);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
+  _onPageViewChange(int page) {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      index = page;
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+  Widget page(
+      {String? imageUrl, String? title, String? desc, bool isEnd = false}) {
+    return Container(
+        padding: EdgeInsets.all(24),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+          children: [
+            SizedBox(
+              height: 24,
+            ),
+            Image.asset(
+              imageUrl!,
+              height: 300,
+            ),
+            SizedBox(
+              height: 36,
             ),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              title!,
+              style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.grey.shade800),
             ),
+            SizedBox(
+              height: 12,
+            ),
+            Text(desc!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontWeight: FontWeight.w500, color: Colors.grey.shade500)),
+            Spacer(),
+            isEnd
+                ? Container(
+                    margin: EdgeInsets.symmetric(horizontal: 24),
+                    height: 48,
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () {},
+                      style: TextButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12))),
+                      child: Text(
+                        'Get Started',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  )
+                : TextButton(
+                    onPressed: () {
+                      _controller.animateToPage(2,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.linearToEaseOut);
+                    },
+                    child: Text(
+                      'Skip',
+                      style: TextStyle(color: Colors.grey),
+                    ))
           ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    );
+        ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Stack(
+          children: [
+            PageView(
+              controller: _controller,
+              onPageChanged: _onPageViewChange,
+              physics: BouncingScrollPhysics(),
+              children: [
+                page(
+                    imageUrl: 'assets/connected.png',
+                    title: 'Stay in Touch',
+                    desc: 'Reach out to anyone at anytime'),
+                page(
+                    imageUrl: 'assets/inspired.png',
+                    title: 'Get Inspired',
+                    desc: 'Get insight from anyone and anytime'),
+                page(
+                    isEnd: true,
+                    imageUrl: 'assets/opinion.png',
+                    title: 'Share your Opinion',
+                    desc: 'Don\'t be shy to speak up\nBuild your confidence'),
+              ],
+            ),
+            Container(
+              width: double.infinity,
+              // color: Colors.red,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        height: 8,
+                        width: 24,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            color: index == 0
+                                ? Colors.blue
+                                : Colors.grey.shade300),
+                      ),
+                      SizedBox(
+                        width: 24,
+                      ),
+                      Container(
+                        height: 8,
+                        width: 24,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            color: index == 1
+                                ? Colors.blue
+                                : Colors.grey.shade300),
+                      ),
+                      SizedBox(
+                        width: 24,
+                      ),
+                      Container(
+                        height: 8,
+                        width: 24,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(99),
+                            color: index == 2
+                                ? Colors.blue
+                                : Colors.grey.shade300),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 124,
+                  )
+                ],
+              ),
+            )
+          ],
+        ));
   }
 }
